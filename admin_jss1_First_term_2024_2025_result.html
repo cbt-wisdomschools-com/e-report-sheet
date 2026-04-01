@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Report - wisdom Foundation  Schools</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background-color: gold;
+      position: relative;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('img/Ctemplogo.png') no-repeat center center;
+      background-size: 300px 300px;
+      opacity: 0.1;
+      pointer-events: none;
+    }
+    .logo { text-align: center; margin-bottom: 20px; }
+    .logo img { height: 100px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 9px;
+    }
+    th, td {
+      border: 1px solid #999;
+      padding: 3px;
+      text-align: center;
+    }
+    th { background: #006400; color: white; }
+    h3 { font-size: 12px; margin: 2px 0; }
+    #student-image {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+    }
+    .report-box {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 5px;
+    }
+    .two-column {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .three-column {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .half-table { width: 48%; }
+    .third-table { width: 32%; }
+    .footer-box { margin-top: 20px; }
+    @media print {
+      body { margin: 10mm; }
+      .three-column { page-break-inside: avoid; }
+    }
+    .comments-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* two columns */
+  gap: 12px 20px;
+  margin-top: 10px;
+}
+
+.comment-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.signature-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+  </style>
+  <div id="logout-container">
+    <button id="logout" onclick="logout()" style="background-color: red; color: lime;">Logout</button>
+  </div>
+</head>
+<body>
+
+<div class="logo">
+  <img src="img/Ctemplogo.png" alt="School Logo">
+  <h5>TERMINAL PROGRESS REPORT FOR SECONDARY SCHOOLS</h5>
+  <img id="student-image" src="" alt="Profile Picture">
+  <h5>Welcome, <span id="user"></span></h5>
+</div>
+
+<div class="report-box" id="basicInfo">
+  <!-- Student info will load here -->
+</div>
+
+<main>
+  <!-- Report Table -->
+  <table id="reportTable">
+    <thead>
+      <tr>
+        <th>Subject</th>
+        <th>CA1</th>
+        <th>CA2</th>
+        <th>Assignment</th>
+        <th>Exam</th>
+        <th>Total</th>
+        <th>Cumm_BF</th>
+        <th>Cumm_Score</th>
+        <th>Class Average</th>
+        <th>Position</th>
+        <th>Grade</th>
+        <th>Remarks</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <!-- Character Development + Practical Skills + Key -->
+  <div class="report-box">
+    <h3>Character Development, Practical Skills & Key</h3>
+    <p style="font-size: 10px; color: red;">Grading 70- 100 Excellent, 69-60 V.Good, 59-50 Good 49-40 Pass 39-0 Poor </p>
+    <div class="three-column">
+      <table class="third-table" id="charLeft"><tbody></tbody></table>
+      <table class="third-table" id="charRight"><tbody></tbody></table>
+      <table class="third-table" id="keyTable">
+        <thead>
+          <tr><th>Score</th><th>Rating</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="report-box footer-box" id="footerBox">
+    <!-- Teacher comment and principal signature will load here -->
+  </div>
+
+  <div class="btn-group">
+    <button onclick="window.print()" style="color: white; background-color: rgb(50,125,50);">🖨️ Print</button>
+    <button onclick="downloadPDF()" style="color: white; background-color: rgb(50,125,50);">⬇️ Download PDF</button>
+  </div>
+
+  <div class="windows-activate">
+    <center>
+      <h3><span style="color: lime;">&copy www.</span><span style="color: red;">wisdom foundation schools.</span><span style="color: red;">org</span></h3>
+    </center>
+  </div>
+</main>
+
+<script>
+  // Static report data - directly coded into the page, no JSON fetch required
+  const reportData = {
+    "student": {
+      "name": sessionStorage.getItem('username') || "Admin",
+      "class": sessionStorage.getItem('class') || "JSS 1",
+      "term": sessionStorage.getItem('term') || "First_term",
+      "session": sessionStorage.getItem('session') || "2025/2026",
+      "hostel": "Unity Hostel",
+      "attendance": "85%",
+      "outof": "100",
+      "number_in_class": "30",
+      "image": sessionStorage.getItem('image') || "img/Admin1.jpg"
+    },
+
+    "scores": [
+      {
+        "subject": "Mathematics",
+        "ca1": 8,
+        "ca2": 9,
+        "assignment": 10,
+        "exam": 65,
+        "total": 92,
+        "cumm_bf": 5,
+        "cumm_score": 97,
+        "class_avg": 75,
+        "position": 1,
+        "grade": "A",
+        "remarks": "Excellent"
+      },
+      {
+        "subject": "English",
+        "ca1": 7,
+        "ca2": 8,
+        "assignment": 9,
+        "exam": 60,
+        "total": 84,
+        "cumm_bf": 4,
+        "cumm_score": 88,
+        "class_avg": 72,
+        "position": 2,
+        "grade": "B",
+        "remarks": "Very Good"
+      },
+      {
+        "subject": "Basic Science",
+        "ca1": 8,
+        "ca2": 9,
+        "assignment": 10,
+        "exam": 65,
+        "total": 92,
+        "cumm_bf": 5,
+        "cumm_score": 97,
+        "class_avg": 75,
+        "position": 1,
+        "grade": "A",
+        "remarks": "Excellent"
+      },
+      {
+        "subject": "Agric Science",
+        "ca1": 7,
+        "ca2": 8,
+        "assignment": 9,
+        "exam": 60,
+        "total": 84,
+        "cumm_bf": 4,
+        "cumm_score": 88,
+        "class_avg": 72,
+        "position": 2,
+        "grade": "B",
+        "remarks": "Very Good"
+      },
+      {
+        "subject": "Basic Technology",
+        "ca1": 8,
+        "ca2": 9,
+        "assignment": 10,
+        "exam": 65,
+        "total": 92,
+        "cumm_bf": 5,
+        "cumm_score": 97,
+        "class_avg": 75,
+        "position": 1,
+        "grade": "A",
+        "remarks": "Excellent"
+      },
+      {
+        "subject": "Home Economics",
+        "ca1": 7,
+        "ca2": 8,
+        "assignment": 9,
+        "exam": 60,
+        "total": 84,
+        "cumm_bf": 4,
+        "cumm_score": 88,
+        "class_avg": 72,
+        "position": 2,
+        "grade": "B",
+        "remarks": "Very Good"
+      },
+      {
+        "subject": "Computer Studies",
+        "ca1": 8,
+        "ca2": 9,
+        "assignment": 10,
+        "exam": 65,
+        "total": 92,
+        "cumm_bf": 5,
+        "cumm_score": 97,
+        "class_avg": 75,
+        "position": 1,
+        "grade": "A",
+        "remarks": "Excellent"
+      },
+      {
+        "subject": "Social Studies",
+        "ca1": 7,
+        "ca2": 8,
+        "assignment": 9,
+        "exam": 60,
+        "total": 84,
+        "cumm_bf": 4,
+        "cumm_score": 88,
+        "class_avg": 72,
+        "position": 2,
+        "grade": "B",
+        "remarks": "Very Good"
+      },
+      {
+        "subject": "Business studies",
+        "ca1": 8,
+        "ca2": 9,
+        "assignment": 10,
+        "exam": 65,
+        "total": 92,
+        "cumm_bf": 5,
+        "cumm_score": 97,
+        "class_avg": 75,
+        "position": 1,
+        "grade": "A",
+        "remarks": "Excellent"
+      },
+      {
+        "subject": "Yoruba",
+        "ca1": 7,
+        "ca2": 8,
+        "assignment": 9,
+        "exam": 60,
+        "total": 84,
+        "cumm_bf": 4,
+        "cumm_score": 88,
+        "class_avg": 72,
+        "position": 2,
+        "grade": "B",
+        "remarks": "Very Good"
+      },
+      {
+        "subject": "Music",
+        "ca1": 8,
+        "ca2": 9,
+        "assignment": 10,
+        "exam": 65,
+        "total": 92,
+        "cumm_bf": 5,
+        "cumm_score": 97,
+        "class_avg": 75,
+        "position": 1,
+        "grade": "A",
+        "remarks": "Excellent"
+      },
+      {
+        "subject": "History",
+        "ca1": 7,
+        "ca2": 8,
+        "assignment": 9,
+        "exam": 60,
+        "total": 84,
+        "cumm_bf": 4,
+        "cumm_score": 88,
+        "class_avg": 72,
+        "position": 2,
+        "grade": "B",
+        "remarks": "Very Good"
+      },
+      {
+        "subject": "Diction",
+        "ca1": 8,
+        "ca2": 9,
+        "assignment": 10,
+        "exam": 65,
+        "total": 92,
+        "cumm_bf": 5,
+        "cumm_score": 97,
+        "class_avg": 75,
+        "position": 1,
+        "grade": "A",
+        "remarks": "Excellent"
+      },
+      {
+        "subject": "PHE",
+        "ca1": 7,
+        "ca2": 8,
+        "assignment": 9,
+        "exam": 60,
+        "total": 84,
+        "cumm_bf": 4,
+        "cumm_score": 88,
+        "class_avg": 72,
+        "position": 2,
+        "grade": "B",
+        "remarks": "Very Good"
+      }
+    ],
+    "character": {
+      "Punctuality": "4 - Excellent",
+      "Attentiveness": "3 - V.Good",
+      "Neatness": "2 - Good",
+      "Honesty": "3 - V.Good",
+      "Relationship": "4 - Excellent",
+      "Skill": "2 - Good",
+      "Sport": "3 - V.Good",
+      "Club": "2 - Good"
+    },
+    "key": [
+      { "score": 4, "rating": "Excellent" },
+      { "score": 3, "rating": "V.Good" },
+      { "score": 2, "rating": "Good" },
+      { "score": 1, "rating": "Fair" }
+    ],
+    "footer": {
+      "teacher_comment": "John has performed exceptionally well this term.",
+      "house_masters": "Good performance.",
+      "principal_comment": "Keep it up. Excellent performance!",
+      "next_term": "25th January 2026",
+      "Promoted_to": "Null"
+    }
+  };
+
+  // Get username from session storage
+  document.getElementById('user').innerText = sessionStorage.getItem('username') || 'Student';
+  
+  // Set student image
+  document.getElementById("student-image").src = reportData.student.image;
+
+  // Student info
+  document.getElementById("basicInfo").innerHTML = `
+    <h3>Student Basic Information</h3>
+    <table>
+      <tr><td>Full Name:</td><td>${reportData.student.name}</td>
+          <td>Class:</td><td>${reportData.student.class}</td>
+          <td>Term:</td><td>${reportData.student.term}</td></tr>
+      <tr><td>Session:</td><td>${reportData.student.session}</td>
+          <td>Hostel:</td><td>${reportData.student.hostel}</td>
+          <td>Attendance:</td><td>${reportData.student.attendance}</td></tr>
+      <tr><td>Out Of:</td><td>${reportData.student.outof}</td>
+          <td>Number in Class:</td><td>${reportData.student.number_in_class}</td>
+          <td></td><td></td></tr>
+    </table>
+  `;
+
+  // Scores
+  const tbody = document.querySelector("#reportTable tbody");
+  reportData.scores.forEach(item => {
+    const row = `
+      <tr>
+        <td>${item.subject}</td>
+        <td>${item.ca1}</td>
+        <td>${item.ca2}</td>
+        <td>${item.assignment}</td>
+        <td>${item.exam}</td>
+        <td>${item.total}</td>
+        <td>${item.cumm_bf}</td>
+        <td>${item.cumm_score}</td>
+        <td>${item.class_avg}</td>
+        <td>${item.position}</td>
+        <td>${item.grade}</td>
+        <td>${item.remarks}</td>
+      </tr>
+    `;
+    tbody.insertAdjacentHTML("beforeend", row);
+  });
+
+  // Character Development split
+  const entries = Object.entries(reportData.character);
+  const left = entries.slice(0, Math.ceil(entries.length / 2));
+  const right = entries.slice(Math.ceil(entries.length / 2));
+
+  left.forEach(([k,v]) => {
+    document.querySelector("#charLeft tbody")
+      .insertAdjacentHTML("beforeend", `<tr><td>${k}</td><td>${v}</td></tr>`);
+  });
+  right.forEach(([k,v]) => {
+    document.querySelector("#charRight tbody")
+      .insertAdjacentHTML("beforeend", `<tr><td>${k}</td><td>${v}</td></tr>`);
+  });
+
+  // Key Table (Score + Rating only)
+  reportData.key.forEach(item => {
+    document.querySelector("#keyTable tbody")
+      .insertAdjacentHTML("beforeend",
+        `<tr><td>${item.score}</td><td>${item.rating}</td></tr>`);
+  });
+
+  // Footer
+  document.getElementById("footerBox").innerHTML = `
+    <h3>Comments</h3>
+    <div class="comments-grid">
+      <div class="comment-item">
+        <span><strong>Teacher’s Comment:</strong> ${reportData.footer.teacher_comment}</span>
+        <img src="teacher_signature.png" alt="Signature" class="signature-icon">
+      </div>
+      <div class="comment-item">
+        <span><strong>Principal’s Comment:</strong> ${reportData.footer.principal_comment}</span>
+        <img src="principal_signature.png" alt="Signature" class="signature-icon">
+      </div>
+      <div class="comment-item">
+        <span><strong>House Master’s Comment:</strong> ${reportData.footer.house_masters}</span>
+        <img src="house_master_signature.png" alt="Signature" class="signature-icon">
+      </div>
+      <div class="comment-item">
+        <span><strong>Next Term:</strong> ${reportData.footer.next_term}</span>
+        <img src="calendar.png" alt="Next Term" class="signature-icon">
+      </div>
+      <div class="comment-item">
+        <span><strong>Promoted To:</strong> ${reportData.footer.Promoted_to}</span>
+        <img src="promotion.png" alt="Promoted To" class="signature-icon">
+      </div>
+      <div class="comment-item">
+        <span><strong>Principal’s Signature:</strong> ____________________</span>
+        <img src="principal_signature.png" alt="Signature" class="signature-icon">
+      </div>
+    </div>
+  `;
+
+  // Apply color rules after data is loaded
+  applyColorRules();
+
+  function applyColorRules() {
+    // SUBJECT TABLE
+    const subjectTable = document.querySelector("#reportTable");
+    if (subjectTable) {
+      subjectTable.querySelectorAll("tbody tr").forEach(row => {
+        let cells = row.querySelectorAll("td");
+
+        // CA1, CA2, Assignment
+        [1, 2, 3].forEach(i => {
+          let val = parseFloat(cells[i]?.innerText);
+          if (!isNaN(val)) {
+            if (val < 5) cells[i].style.color = "red";
+            else if (val >= 5 && val <= 10) cells[i].style.color = "blue";
+            else if (val > 10) cells[i].style.color = "green";
+          }
+        });
+
+        // Exam
+        let examVal = parseFloat(cells[4]?.innerText);
+        if (!isNaN(examVal) && examVal < 20) cells[4].style.color = "red";
+
+        // Total
+        let totalVal = parseFloat(cells[5]?.innerText);
+        if (!isNaN(totalVal) && totalVal < 40) cells[5].style.color = "red";
+
+        // Grade
+        let gradeText = cells[10]?.innerText.trim().toUpperCase();
+        if (gradeText === "E") cells[10].style.color = "red";
+
+        // Remarks
+        let remarkText = cells[11]?.innerText.trim().toLowerCase();
+        if (remarkText.includes("poor")) cells[11].style.color = "red";
+      });
+    }
+
+    // CHARACTER DEV
+    document.querySelectorAll("#charLeft td:nth-child(2), #charRight td:nth-child(2)").forEach(cell => {
+      let val = parseFloat(cell.innerText);
+      if (!isNaN(val)) {
+        if (val < 3) cell.style.color = "red";
+        else cell.style.color = "blue";
+      }
+    });
+
+    // KEY TABLE (Score)
+    document.querySelectorAll("#keyTable td:nth-child(1)").forEach(cell => {
+      let val = parseFloat(cell.innerText);
+      if (!isNaN(val)) {
+        if (val < 3) cell.style.color = "red";
+        else if (val >= 3 && val <= 4) cell.style.color = "blue";
+        else cell.style.color = "green";
+      }
+    });
+  }
+
+  function downloadPDF() {
+    import('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js').then(jsPDF => {
+      const { jsPDF: PDF } = jsPDF;
+      const doc = new PDF();
+      doc.html(document.body, {
+        callback: function (pdf) {
+          pdf.save("student_report.pdf");
+        },
+        x: 10,
+        y: 10
+      });
+    });
+  }
+
+  function logout() {
+    fetch('index.html', { method: 'POST' })
+      .then(() => {
+        localStorage.removeItem('username');
+        window.location.href = "index.html";
+      })
+      .catch(error => console.error('Logout error:', error));
+  }
+</script>
+</body>
+</html>
